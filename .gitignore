@@ -21,3 +21,11 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# local backend secrets
+/coding_quiz_database/judge0_config.php
+
+# local editor files and source copies kept outside the app
+/.vscode/
+/assest/
+/backend_php_updated/

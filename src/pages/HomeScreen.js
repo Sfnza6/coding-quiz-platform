@@ -1,0 +1,194 @@
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../auth/AuthContext";
+import InstitutionBrand from "../components/InstitutionBrand";
+import { studentApi } from "../services/apiClient";
+import "../App.css";
+
+function formatDuration(seconds) {
+  const value = Math.max(0, Math.floor(Number(seconds || 0)));
+  const minutes = Math.floor(value / 60);
+  const remainder = value % 60;
+  return `${minutes}:${String(remainder).padStart(2, "0")}`;
+}
+
+export default function HomeScreen() {
+  const [competition, setCompetition] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
+  const { student, token, logout, setActiveCompetitionId, clearFinishedCompetition } = useAuth();
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadCompetitionStatus = () => {
+      studentApi
+        .getCompetitionStatus(token)
+        .then((data) => {
+          if (!isMounted) return;
+          const nextCompetition = data.competition || data;
+          setCompetition(nextCompetition);
+          if (nextCompetition?.id) {
+            setActiveCompetitionId(nextCompetition.id);
+          }
+          if (nextCompetition?.is_active && nextCompetition?.student_status !== "finished") {
+            clearFinishedCompetition(nextCompetition.id);
+          }
+          setError("");
+        })
+        .catch((err) => {
+          if (!isMounted) return;
+          setError(
+            err.status === 401
+              ? "انتهت جلسة الدخول. سجل الدخول من جديد."
+              : "تعذر تحديث حالة التحدي حاليًا. حاول مرة أخرى بعد قليل."
+          );
+        })
+        .finally(() => {
+          if (isMounted) setLoading(false);
+        });
+    };
+
+    loadCompetitionStatus();
+    const intervalId = setInterval(loadCompetitionStatus, 4000);
+
+    return () => {
+      isMounted = false;
+      clearInterval(intervalId);
+    };
+  }, [clearFinishedCompetition, setActiveCompetitionId, token]);
+
+  useEffect(() => {
+    if (!competition?.is_active) return undefined;
+
+    const countdown = setInterval(() => {
+      setCompetition((current) => {
+        if (!current?.remaining_seconds) return current;
+        return {
+          ...current,
+          remaining_seconds: Math.max(0, Number(current.remaining_seconds) - 1),
+        };
+      });
+    }, 1000);
+
+    return () => clearInterval(countdown);
+  }, [competition?.is_active]);
+
+  useEffect(() => {
+    if (competition?.student_status === "finished") {
+      navigate("/finish", { replace: true, state: { competitionId: competition.id } });
+    }
+  }, [competition?.id, competition?.student_status, navigate]);
+
+  const handleLogout = () => {
+    logout();
+    navigate("/", { replace: true });
+  };
+
+  const isActive = Boolean(competition?.is_active && Number(competition?.remaining_seconds || 0) > 0);
+  const statusText = loading
+    ? "جارٍ التحقق من حالة التحدي"
+    : isActive
+      ? "التحدي متاح الآن"
+      : competition?.student_status === "finished"
+        ? "اكتملت مشاركتك"
+        : "بانتظار بدء التحدي";
+
+  return (
+    <main className="student-shell dashboard-shell institution-home" dir="rtl">
+      <header className="home-header">
+        <InstitutionBrand />
+        <button className="home-logout" type="button" onClick={handleLogout}>
+          تسجيل الخروج
+        </button>
+      </header>
+
+      <div className="home-content">
+        <section className="home-welcome" aria-labelledby="home-title">
+          <div>
+            <span className="home-kicker">مساحة المشارك</span>
+            <h1 id="home-title">مرحبًا، {student?.name || "طالبنا العزيز"}</h1>
+            <p>هنا تبدأ تجربتك في التحدي البرمجي. تابع حالة المسابقة واستعد لعرض مهاراتك في حل المسائل.</p>
+          </div>
+          <div className="home-welcome-mark" aria-hidden="true">IT</div>
+        </section>
+
+        <section className="home-grid" aria-label="معلومات التحدي والمشارك">
+          <article className="home-competition-card">
+            <div className="home-card-heading">
+              <span className="home-section-label">التحدي الحالي</span>
+              <span className={`home-status ${isActive ? "is-active" : ""}`} role="status">
+                <span className="home-status-dot" aria-hidden="true" />
+                {statusText}
+              </span>
+            </div>
+
+            <h2>{competition?.title || "التحدي البرمجي"}</h2>
+            <p className="home-competition-description">
+              {competition?.description || "ستظهر هنا تفاصيل التحدي عند إعلانها من فريق التنظيم. يمكنك الدخول بمجرد تفعيل المسابقة."}
+            </p>
+
+            <div className="home-metrics">
+              <div>
+                <span>عدد الأسئلة</span>
+                <strong>{competition?.questions_count ?? "—"}</strong>
+              </div>
+              <div>
+                <span>الوقت المتبقي</span>
+                <strong dir="ltr">{competition?.remaining_seconds != null ? formatDuration(competition.remaining_seconds) : "—"}</strong>
+              </div>
+              <div>
+                <span>حالة الدخول</span>
+                <strong>{isActive ? "متاح" : "غير متاح"}</strong>
+              </div>
+            </div>
+
+            {error && <p className="home-error" role="alert">{error}</p>}
+
+            <div className="home-action-row">
+              <button
+                className="home-enter-button"
+                type="button"
+                disabled={!isActive || loading}
+                onClick={() => navigate("/quiz")}
+              >
+                {loading ? "جارٍ التحقق..." : "الدخول إلى التحدي"}
+              </button>
+              <span>{isActive ? "التحدي جاهز للمشاركة" : "سيتاح الدخول عند بدء المسابقة"}</span>
+            </div>
+          </article>
+
+          <aside className="home-sidebar">
+            <section className="home-profile-card" aria-labelledby="home-profile-title">
+              <span className="home-section-label">بيانات المشارك</span>
+              <h2 id="home-profile-title">بطاقتك في التحدي</h2>
+              <dl>
+                <div>
+                  <dt>الاسم</dt>
+                  <dd>{student?.name || "—"}</dd>
+                </div>
+                <div>
+                  <dt>رقم القيد</dt>
+                  <dd dir="auto">{student?.id || student?.student_id || "—"}</dd>
+                </div>
+              </dl>
+            </section>
+
+            <section className="home-guide-card" aria-labelledby="home-guide-title">
+              <span className="home-section-label">قبل البداية</span>
+              <h2 id="home-guide-title">خطوات المشاركة</h2>
+              <ol>
+                <li><span>01</span><p>انتظر تفعيل التحدي من فريق التنظيم.</p></li>
+                <li><span>02</span><p>اقرأ المسائل والتعليمات داخل مساحة التحدي.</p></li>
+                <li><span>03</span><p>ارفع ملفات الحلول المصدرية قبل انتهاء الوقت.</p></li>
+              </ol>
+            </section>
+          </aside>
+        </section>
+
+        <footer className="home-footer">كلية تقنية المعلومات · جامعة سرت</footer>
+      </div>
+    </main>
+  );
+}
