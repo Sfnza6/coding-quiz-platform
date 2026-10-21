@@ -1,3 +1,4 @@
+import { tr, useLocale } from "../i18n/LocaleContext";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { API_BASE_URL } from "../config/api";
@@ -18,6 +19,7 @@ const emptyForm = {
 };
 
 export default function AdminQuestions() {
+  const { direction } = useLocale();
   const navigate = useNavigate();
   const { themeClass } = useThemeMode();
   const [questions, setQuestions] = useState([]);
@@ -86,7 +88,7 @@ export default function AdminQuestions() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("هل تريد حذف هذا السؤال؟")) return;
+    if (!window.confirm(tr("هل تريد حذف هذا السؤال؟"))) return;
 
     try {
       await fetch(`${API_BASE_URL}/delete_external_question.php`, {
@@ -142,37 +144,37 @@ export default function AdminQuestions() {
   };
 
   return (
-    <main className={`admin-v2-shell institution-admin ${themeClass}`} dir="rtl">
-      <AdminPageHeader section="محتوى التحدي" title="إدارة الأسئلة" description="أضف المسائل البرمجية وعدّلها وتابع قائمة الأسئلة.">
+    <main className={`admin-v2-shell institution-admin ${themeClass}`} dir={direction}>
+      <AdminPageHeader section={tr("محتوى التحدي")} title={tr("إدارة الأسئلة")} description={tr("أضف المسائل البرمجية وعدّلها وتابع قائمة الأسئلة.")}>
           <button className="secondary-action" onClick={() => navigate("/admin")}>
-            لوحة التحكم
+            {tr("لوحة التحكم")}
           </button>
           <button className="secondary-action" onClick={() => navigate("/results")}>
-            النتائج
+            {tr("النتائج")}
           </button>
       </AdminPageHeader>
 
       <section className="admin-v2-card ai-question-card" aria-labelledby="ai-question-title">
         <div>
-          <span className="institution-admin-card-label">مساعد الإدارة</span>
-          <h2 id="ai-question-title">توليد مسودة سؤال باستخدام نموذج الذكاء الاصطناعي </h2>
-          <p>اختر موضوعًا ومستوى الصعوبة. ستظهر المسودة للمراجعة قبل إضافتها إلى المسابقة.</p>
+          <span className="institution-admin-card-label">{tr("مساعد الإدارة")}</span>
+          <h2 id="ai-question-title">{tr("توليد مسودة سؤال باستخدام نموذج الذكاء الاصطناعي")} </h2>
+          <p>{tr("اختر موضوعًا ومستوى الصعوبة. ستظهر المسودة للمراجعة قبل إضافتها إلى المسابقة.")}</p>
         </div>
         <form className="ai-question-form" onSubmit={generateGeminiQuestion}>
           <label>
-            موضوع السؤال
-            <input value={aiTopic} onChange={(event) => setAiTopic(event.target.value)} placeholder="مثال: المصفوفات والحلقات" minLength={3} maxLength={150} required />
+            {tr("موضوع السؤال")}
+            <input value={aiTopic} onChange={(event) => setAiTopic(event.target.value)} placeholder={tr("مثال: المصفوفات والحلقات")} minLength={3} maxLength={150} required />
           </label>
           <label>
-            الصعوبة
+            {tr("الصعوبة")}
             <select value={aiDifficulty} onChange={(event) => setAiDifficulty(event.target.value)}>
-              <option value="easy">سهل</option>
-              <option value="medium">متوسط</option>
-              <option value="hard">صعب</option>
+              <option value="easy">{tr("سهل")}</option>
+              <option value="medium">{tr("متوسط")}</option>
+              <option value="hard">{tr("صعب")}</option>
             </select>
           </label>
           <label>
-            اللغة
+            {tr("اللغة")}
             <select value={aiLanguage} onChange={(event) => setAiLanguage(event.target.value)}>
               <option value="cpp">C++</option>
               <option value="python">Python</option>
@@ -181,66 +183,66 @@ export default function AdminQuestions() {
             </select>
           </label>
           <label>
-            نمط التوليد
+            {tr("نمط التوليد")}
             <select value={aiMode} onChange={(event) => setAiMode(event.target.value)}>
-              <option value="fast">سريع</option>
-              <option value="quality">أدق</option>
+              <option value="fast">{tr("سريع")}</option>
+              <option value="quality">{tr("أدق")}</option>
             </select>
           </label>
           <button className="primary-action" type="submit" disabled={aiBusy}>
-            {aiBusy ? "جارٍ توليد السؤال..." : "توليد سؤال"}
+            {aiBusy ? tr("جارٍ توليد السؤال...") : tr("توليد سؤال")}
           </button>
         </form>
-        <p className="ai-question-note">النمط السريع مناسب لمسودات الأسئلة اليومية. النمط الأدق قد يستغرق وقتًا أطول للمسائل المعقدة.</p>
-        {aiError && <p className="form-error" role="alert">{aiError}</p>}
+        <p className="ai-question-note">{tr("النمط السريع مناسب لمسودات الأسئلة اليومية. النمط الأدق قد يستغرق وقتًا أطول للمسائل المعقدة.")}</p>
+        {aiError && <p className="form-error" role="alert">{tr(aiError)}</p>}
         {aiDraft && (
           <div className="ai-question-draft">
             <strong>{aiDraft.title}</strong>
             <p>{aiDraft.description}</p>
-            <small>حالات الاختبار: {aiDraft.test_cases.length}</small>
-            <button className="primary-action" type="button" onClick={useGeminiDraft}>فتح المسودة في نموذج الإضافة</button>
+            <small>{tr("حالات الاختبار:")} {aiDraft.test_cases.length}</small>
+            <button className="primary-action" type="button" onClick={useGeminiDraft}>{tr("فتح المسودة في نموذج الإضافة")}</button>
           </div>
         )}
-        <p className="ai-question-note">المخرجات وحالات الاختبار المولّدة قد تحتوي أخطاء؛ راجعها قبل الحفظ.</p>
+        <p className="ai-question-note">{tr("المخرجات وحالات الاختبار المولّدة قد تحتوي أخطاء؛ راجعها قبل الحفظ.")}</p>
       </section>
 
       <section className="admin-v2-grid questions-grid">
         <article className="admin-v2-card" id="question-form-card">
-          <span className="institution-admin-card-label">تفاصيل المسألة</span>
-          <h2>{form.id ? "تعديل سؤال" : "إضافة سؤال"}</h2>
+          <span className="institution-admin-card-label">{tr("تفاصيل المسألة")}</span>
+          <h2>{form.id ? tr("تعديل سؤال") : tr("إضافة سؤال")}</h2>
           <form className="admin-v2-form" onSubmit={handleSubmit}>
             <label>
-              العنوان
+              {tr("العنوان")}
               <input name="title" value={form.title} onChange={handleChange} required />
             </label>
             <label>
-              الوصف
+              {tr("الوصف")}
               <textarea name="description" value={form.description} onChange={handleChange} rows="5" required />
             </label>
             <label>
-              وصف المدخلات
+              {tr("وصف المدخلات")}
               <textarea name="input_sample" value={form.input_sample} onChange={handleChange} rows="2" />
             </label>
             <label>
-              وصف المخرجات
+              {tr("وصف المخرجات")}
               <textarea name="output_sample" value={form.output_sample} onChange={handleChange} rows="2" />
             </label>
             <div className="two-column-fields">
               <label>
-                مثال إدخال
+                {tr("مثال إدخال")}
                 <textarea name="example_input" value={form.example_input} onChange={handleChange} rows="3" />
               </label>
               <label>
-                مثال إخراج
+                {tr("مثال إخراج")}
                 <textarea name="example_output" value={form.example_output} onChange={handleChange} rows="3" />
               </label>
             </div>
             <label>
-              حالات الاختبار
+              {tr("حالات الاختبار")}
               <textarea name="test_cases" value={form.test_cases} onChange={handleChange} rows="6" dir="ltr" />
             </label>
             <label>
-              اللغة
+              {tr("اللغة")}
               <select name="language" value={form.language} onChange={handleChange}>
                 <option value="cpp">C++</option>
                 <option value="python">Python</option>
@@ -249,23 +251,23 @@ export default function AdminQuestions() {
               </select>
             </label>
             <button className="primary-action" type="submit">
-              {form.id ? "حفظ التعديل" : "إضافة السؤال"}
+              {form.id ? tr("حفظ التعديل") : tr("إضافة السؤال")}
             </button>
           </form>
-          {message && <p className={message.startsWith("تم") ? "success-text" : "form-error"} role="status">{message}</p>}
+          {message && <p className={message.startsWith("تم") ? "success-text" : "form-error"} role="status">{tr(message)}</p>}
         </article>
 
         <article className="admin-v2-card">
-          <span className="institution-admin-card-label">الأسئلة المتاحة</span>
-          <h2>قائمة الأسئلة</h2>
+          <span className="institution-admin-card-label">{tr("الأسئلة المتاحة")}</span>
+          <h2>{tr("قائمة الأسئلة")}</h2>
           <div className="admin-table-wrap">
             <table className="admin-table">
               <thead>
                 <tr>
                   <th>#</th>
-                  <th>العنوان</th>
-                  <th>اللغة</th>
-                  <th>الإجراءات</th>
+                  <th>{tr("العنوان")}</th>
+                  <th>{tr("اللغة")}</th>
+                  <th>{tr("الإجراءات")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -275,8 +277,8 @@ export default function AdminQuestions() {
                     <td>{question.title}</td>
                     <td>{question.language}</td>
                     <td>
-                      <button onClick={() => setForm({ ...emptyForm, ...question })}>تعديل</button>
-                      <button onClick={() => handleDelete(question.id)}>حذف</button>
+                      <button onClick={() => setForm({ ...emptyForm, ...question })}>{tr("تعديل")}</button>
+                      <button onClick={() => handleDelete(question.id)}>{tr("حذف")}</button>
                     </td>
                   </tr>
                 ))}

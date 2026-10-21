@@ -1,3 +1,4 @@
+import { tr, useLocale } from "../i18n/LocaleContext";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { API_BASE_URL } from "../config/api";
@@ -6,6 +7,7 @@ import { useThemeMode } from "../theme/useThemeMode";
 import "../App.css";
 
 export default function AddStudentScreen() {
+  const { direction } = useLocale();
   const [studentId, setStudentId] = useState("");
   const [studentName, setStudentName] = useState("");
   const [generatedPassword, setGeneratedPassword] = useState("");
@@ -57,22 +59,22 @@ export default function AddStudentScreen() {
   };
 
   return (
-    <main className={`admin-v2-shell institution-admin ${themeClass}`} dir="rtl">
-      <AdminPageHeader section="المشاركون" title="إضافة طالب جديد" description="أدخل بيانات الطالب لإنشاء حساب مشاركة في التحدي.">
+    <main className={`admin-v2-shell institution-admin ${themeClass}`} dir={direction}>
+      <AdminPageHeader section={tr("المشاركون")} title={tr("إضافة طالب جديد")} description={tr("أدخل بيانات الطالب لإنشاء حساب مشاركة في التحدي.")}>
           <button className="secondary-action" onClick={() => navigate("/admin/students")}>
-            قائمة الطلبة
+            {tr("قائمة الطلبة")}
           </button>
           <button className="secondary-action" onClick={() => navigate("/admin")}>
-            لوحة التحكم
+            {tr("لوحة التحكم")}
           </button>
       </AdminPageHeader>
 
       <section className="admin-v2-card institution-admin-narrow-card">
-        <span className="institution-admin-card-label">بيانات الطالب</span>
-        <h2>معلومات الحساب</h2>
+        <span className="institution-admin-card-label">{tr("بيانات الطالب")}</span>
+        <h2>{tr("معلومات الحساب")}</h2>
         <form className="admin-v2-form" onSubmit={handleSubmit}>
           <label>
-            اسم الطالب
+            {tr("اسم الطالب")}
             <input
               type="text"
               value={studentName}
@@ -82,7 +84,7 @@ export default function AddStudentScreen() {
           </label>
 
           <label>
-            رقم القيد
+            {tr("رقم القيد")}
             <input
               type="text"
               value={studentId}
@@ -93,15 +95,15 @@ export default function AddStudentScreen() {
           </label>
 
           <button className="primary-action" type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "جاري الإضافة..." : "إضافة وتوليد كلمة مرور"}
+            {isSubmitting ? tr("جاري الإضافة...") : tr("إضافة وتوليد كلمة مرور")}
           </button>
         </form>
 
-        {message && <p className="success-text">{message}</p>}
-        {errorMessage && <p className="form-error">{errorMessage}</p>}
+        {message && <p className="success-text">{tr(message)}</p>}
+        {errorMessage && <p className="form-error">{tr(errorMessage)}</p>}
         {generatedPassword && (
           <div className="credential-box">
-            <span>كلمة المرور المولدة</span>
+            <span>{tr("كلمة المرور المولدة")}</span>
             <strong>{generatedPassword}</strong>
           </div>
         )}

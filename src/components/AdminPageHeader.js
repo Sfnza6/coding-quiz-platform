@@ -1,11 +1,13 @@
+import { tr, useLocale } from "../i18n/LocaleContext";
 import InstitutionBrand from "./InstitutionBrand";
 
 export default function AdminPageHeader({ section, title, description, children }) {
+  useLocale();
   return (
     <header className="institution-admin-header">
       <div className="institution-admin-brand-row">
         <InstitutionBrand />
-        <span className="institution-admin-brand-label">مساحة الإدارة</span>
+        <span className="institution-admin-brand-label">{tr("مساحة الإدارة")}</span>
       </div>
       <div className="institution-admin-heading-row">
         <div>

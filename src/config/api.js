@@ -8,4 +8,6 @@ export const API_ENDPOINTS = {
   questions: "/get_student_questions.php",
   submitSolution: "/submit_solution.php",
   finalizeCompetition: "/finalize_competition.php",
+  studentActivity: "/get_student_activity.php",
+  studentHistory: "/get_student_history.php",
 };

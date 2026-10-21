@@ -1,3 +1,4 @@
+import { tr, useLocale } from "../i18n/LocaleContext";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { API_BASE_URL } from "../config/api";
@@ -6,6 +7,7 @@ import { useThemeMode } from "../theme/useThemeMode";
 import "../App.css";
 
 export default function AdminLoginScreen() {
+  const { direction } = useLocale();
   const [adminId, setAdminId] = useState("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -33,6 +35,7 @@ export default function AdminLoginScreen() {
       if (response.ok && data.status === "success") {
         localStorage.setItem("admin-id", adminId.trim());
         localStorage.setItem("admin-name", data.admin_name);
+        sessionStorage.setItem("admin-token", data.token);
         navigate("/admin", { replace: true });
       } else {
         setError("بيانات المسؤول غير صحيحة.");
@@ -45,46 +48,46 @@ export default function AdminLoginScreen() {
   };
 
   return (
-    <main className={`admin-v2-shell auth-shell institution-auth ${themeClass}`} dir="rtl">
+    <main className={`admin-v2-shell auth-shell institution-auth ${themeClass}`} dir={direction}>
       <header className="institution-header">
         <InstitutionBrand compact />
-        <span className="institution-header-note">منصة التحدي البرمجي</span>
+        <span className="institution-header-note">{tr("منصة التحدي البرمجي")}</span>
       </header>
 
       <section className="institution-auth-panel" aria-labelledby="admin-login-title">
         <div className="institution-intro">
-          <span className="institution-kicker">مساحة الإدارة</span>
-          <h1 id="admin-login-title">إدارة منظّمة لتحدٍّ أفضل.</h1>
-          <p>تابع المشاركين والأسئلة ونتائج التحدي من مساحة عمل مخصصة لفريق التنظيم بكلية تقنية المعلومات.</p>
-          <div className="institution-intro-footer">كلية تقنية المعلومات <span aria-hidden="true">•</span> جامعة سرت</div>
+          <span className="institution-kicker">{tr("مساحة الإدارة")}</span>
+          <h1 id="admin-login-title">{tr("إدارة منظّمة لتحدٍّ أفضل.")}</h1>
+          <p>{tr("تابع المشاركين والأسئلة ونتائج التحدي من مساحة عمل مخصصة لفريق التنظيم بكلية تقنية المعلومات.")}</p>
+          <div className="institution-intro-footer">{tr("كلية تقنية المعلومات")} <span aria-hidden="true">•</span> {tr("جامعة سرت")}</div>
         </div>
 
         <form className="institution-form" onSubmit={handleLogin}>
-          <span className="form-kicker">دخول الإدارة</span>
-          <h2>لوحة التحكم</h2>
-          <p className="form-description">أدخل رقم المسؤول المخصص لك للمتابعة.</p>
+          <span className="form-kicker">{tr("دخول الإدارة")}</span>
+          <h2>{tr("لوحة التحكم")}</h2>
+          <p className="form-description">{tr("أدخل رقم المسؤول المخصص لك للمتابعة.")}</p>
 
-          <label htmlFor="admin-id">رقم المسؤول</label>
+          <label htmlFor="admin-id">{tr("رقم المسؤول")}</label>
           <input
             id="admin-id"
             type="text"
             value={adminId}
             onChange={(event) => setAdminId(event.target.value)}
-            placeholder="أدخل رقم المسؤول"
+            placeholder={tr("أدخل رقم المسؤول")}
             autoComplete="username"
             aria-invalid={Boolean(error)}
             aria-describedby={error ? "admin-login-error" : undefined}
           />
 
-          {error && <p id="admin-login-error" className="institution-form-error" role="alert">{error}</p>}
+          {error && <p id="admin-login-error" className="institution-form-error" role="alert">{tr(error)}</p>}
 
           <button className="institution-submit" type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "جارٍ التحقق..." : "الدخول إلى لوحة التحكم"}
+            {isSubmitting ? tr("جارٍ التحقق...") : tr("الدخول إلى لوحة التحكم")}
           </button>
 
         </form>
       </section>
-      <footer className="institution-page-footer">منصة التحدي البرمجي · جامعة سرت</footer>
+      <footer className="institution-page-footer">{tr("منصة التحدي البرمجي · جامعة سرت")}</footer>
     </main>
   );
 }

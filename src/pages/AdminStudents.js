@@ -1,3 +1,4 @@
+import { tr, useLocale } from "../i18n/LocaleContext";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { API_BASE_URL } from "../config/api";
@@ -6,10 +7,21 @@ import { useThemeMode } from "../theme/useThemeMode";
 import "../App.css";
 
 function formatDate(value) {
-  return value || "غير متوفر";
+  return value || tr("غير متوفر");
+}
+
+function competitionStatusLabel(status) {
+  const labels = {
+    assigned: "مخصص",
+    started: "بدأ",
+    finished: "أنهى",
+    locked: "مغلق",
+  };
+  return tr(labels[status] || status || "غير مخصص");
 }
 
 export default function AdminStudents() {
+  const { direction } = useLocale();
   const navigate = useNavigate();
   const { themeClass } = useThemeMode();
   const [students, setStudents] = useState([]);
@@ -51,7 +63,7 @@ export default function AdminStudents() {
 
   const deleteStudent = async (student) => {
     const confirmed = window.confirm(
-      `هل تريد حذف الطالب "${student.student_name}"؟ سيتم حذف بياناته المرتبطة من المسابقة حسب إعدادات قاعدة البيانات.`
+      `${tr("هل تريد حذف الطالب \"")}${student.student_name}${tr("\"؟ سيتم حذف بياناته المرتبطة من المسابقة حسب إعدادات قاعدة البيانات.")}`
     );
     if (!confirmed) return;
 
@@ -97,63 +109,63 @@ export default function AdminStudents() {
   const totalAttempts = students.reduce((sum, student) => sum + Number(student.attempts_count || 0), 0);
 
   return (
-    <main className={`admin-v2-shell institution-admin ${themeClass}`} dir="rtl">
-      <AdminPageHeader section="المشاركون" title="إدارة الطلبة" description="عرض بيانات الطلبة وحالة مشاركتهم في التحدي.">
+    <main className={`admin-v2-shell institution-admin ${themeClass}`} dir={direction}>
+      <AdminPageHeader section={tr("المشاركون")} title={tr("إدارة الطلبة")} description={tr("عرض بيانات الطلبة وحالة مشاركتهم في التحدي.")}>
           <button className="primary-action compact-action" onClick={() => navigate("/add-student")}>
-            إضافة طالب
+            {tr("إضافة طالب")}
           </button>
           <button className="secondary-action" onClick={fetchStudents}>
-            تحديث
+            {tr("تحديث")}
           </button>
           <button className="secondary-action" onClick={() => navigate("/admin")}>
-            لوحة التحكم
+            {tr("لوحة التحكم")}
           </button>
       </AdminPageHeader>
 
       <section className="students-overview">
         <article className="student-stat-card">
-          <span>عدد الطلبة</span>
+          <span>{tr("عدد الطلبة")}</span>
           <strong>{students.length}</strong>
         </article>
         <article className="student-stat-card">
-          <span>إجمالي الحلول الصحيحة</span>
+          <span>{tr("إجمالي الحلول الصحيحة")}</span>
           <strong>{totalSolved}</strong>
         </article>
         <article className="student-stat-card">
-          <span>إجمالي المحاولات</span>
+          <span>{tr("إجمالي المحاولات")}</span>
           <strong>{totalAttempts}</strong>
         </article>
         <article className="student-stat-card">
-          <span>المسابقة الحالية</span>
-          <strong>{meta?.active_session ? "مفتوحة" : "غير مفتوحة"}</strong>
+          <span>{tr("المسابقة الحالية")}</span>
+          <strong>{meta?.active_session ? tr("مفتوحة") : tr("غير مفتوحة")}</strong>
         </article>
       </section>
 
       <section className="admin-v2-card students-card">
         <div className="students-toolbar">
           <div>
-            <h2>قائمة الطلبة</h2>
+            <h2>{tr("قائمة الطلبة")}</h2>
             <p className="muted-text">
-              {loading ? "جاري تحميل البيانات..." : `يتم عرض ${filteredStudents.length} من ${students.length} طالب.`}
+              {loading ? tr("جاري تحميل البيانات...") : `${tr("يتم عرض")} ${filteredStudents.length} ${tr("من")} ${students.length} ${tr("طالب.")}`}
             </p>
           </div>
           <label className="student-search">
-            بحث
+            {tr("بحث")}
             <input
               type="search"
               value={searchTerm}
               onChange={(event) => setSearchTerm(event.target.value)}
-              placeholder="اسم الطالب أو رقم القيد"
+              placeholder={tr("اسم الطالب أو رقم القيد")}
             />
           </label>
         </div>
 
-        {message && <p className="form-error">{message}</p>}
+        {message && <p className="form-error">{tr(message)}</p>}
 
         {!loading && filteredStudents.length === 0 ? (
           <div className="empty-state">
-            <h3>لا توجد بيانات مطابقة</h3>
-            <p className="muted-text">أضف طالبًا جديدًا أو غيّر عبارة البحث الحالية.</p>
+            <h3>{tr("لا توجد بيانات مطابقة")}</h3>
+            <p className="muted-text">{tr("أضف طالبًا جديدًا أو غيّر عبارة البحث الحالية.")}</p>
           </div>
         ) : (
           <div className="admin-table-wrap">
@@ -161,15 +173,15 @@ export default function AdminStudents() {
               <thead>
                 <tr>
                   <th>#</th>
-                  <th>رقم القيد</th>
-                  <th>اسم الطالب</th>
-                  <th>تاريخ الإضافة</th>
-                  <th>كلمة المرور</th>
-                  <th>حالة المسابقة</th>
-                  <th>الحلول</th>
-                  <th>المحاولات</th>
-                  <th>آخر نشاط</th>
-                  <th>الإجراءات</th>
+                  <th>{tr("رقم القيد")}</th>
+                  <th>{tr("اسم الطالب")}</th>
+                  <th>{tr("تاريخ الإضافة")}</th>
+                  <th>{tr("كلمة المرور")}</th>
+                  <th>{tr("حالة المسابقة")}</th>
+                  <th>{tr("الحلول")}</th>
+                  <th>{tr("المحاولات")}</th>
+                  <th>{tr("آخر نشاط")}</th>
+                  <th>{tr("الإجراءات")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -179,8 +191,8 @@ export default function AdminStudents() {
                     <td dir="ltr">{student.student_id}</td>
                     <td>{student.student_name}</td>
                     <td>{formatDate(student.created_at)}</td>
-                    <td>{student.has_password ? "مفعلة" : "غير مفعلة"}</td>
-                    <td>{student.competition_status || "غير مخصص"}</td>
+                    <td>{student.has_password ? tr("مفعلة") : tr("غير مفعلة")}</td>
+                    <td>{competitionStatusLabel(student.competition_status)}</td>
                     <td>{student.solved_count || 0}</td>
                     <td>{student.attempts_count || 0}</td>
                     <td>{formatDate(student.last_activity)}</td>
@@ -190,7 +202,7 @@ export default function AdminStudents() {
                         onClick={() => deleteStudent(student)}
                         disabled={deletingStudentId === student.student_id}
                       >
-                        {deletingStudentId === student.student_id ? "جاري الحذف..." : "حذف"}
+                        {deletingStudentId === student.student_id ? tr("جاري الحذف...") : tr("حذف")}
                       </button>
                     </td>
                   </tr>

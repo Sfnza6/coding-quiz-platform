@@ -67,7 +67,15 @@ export const studentApi = {
   getCompetitionStatus: (token) =>
     getJson(API_ENDPOINTS.competitionStatus, token),
 
+  getResult: (token, sessionId) =>
+    getJson(`/get_student_result.php${sessionId ? `?session_id=${encodeURIComponent(sessionId)}` : ""}`, token),
+
   getQuestions: (token) => getJson(API_ENDPOINTS.questions, token),
+
+  getActivity: (token, sessionId) =>
+    getJson(`${API_ENDPOINTS.studentActivity}?session_id=${encodeURIComponent(sessionId)}`, token),
+
+  getHistory: (token) => getJson(API_ENDPOINTS.studentHistory, token),
 
   submitSolution: ({ token, questionId, sourceFile, language }) => {
     const formData = new FormData();

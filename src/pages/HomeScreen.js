@@ -1,3 +1,4 @@
+import { tr, useLocale } from "../i18n/LocaleContext";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
@@ -13,6 +14,7 @@ function formatDuration(seconds) {
 }
 
 export default function HomeScreen() {
+  const { direction } = useLocale();
   const [competition, setCompetition] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -88,63 +90,63 @@ export default function HomeScreen() {
 
   const isActive = Boolean(competition?.is_active && Number(competition?.remaining_seconds || 0) > 0);
   const statusText = loading
-    ? "جارٍ التحقق من حالة التحدي"
+    ? tr("جارٍ التحقق من حالة التحدي")
     : isActive
-      ? "التحدي متاح الآن"
+      ? tr("التحدي متاح الآن")
       : competition?.student_status === "finished"
-        ? "اكتملت مشاركتك"
-        : "بانتظار بدء التحدي";
+        ? tr("اكتملت مشاركتك")
+        : tr("بانتظار بدء التحدي");
 
   return (
-    <main className="student-shell dashboard-shell institution-home" dir="rtl">
+    <main className="student-shell dashboard-shell institution-home" dir={direction}>
       <header className="home-header">
         <InstitutionBrand />
         <button className="home-logout" type="button" onClick={handleLogout}>
-          تسجيل الخروج
+          {tr("تسجيل الخروج")}
         </button>
       </header>
 
       <div className="home-content">
         <section className="home-welcome" aria-labelledby="home-title">
           <div>
-            <span className="home-kicker">مساحة المشارك</span>
-            <h1 id="home-title">مرحبًا، {student?.name || "طالبنا العزيز"}</h1>
-            <p>هنا تبدأ تجربتك في التحدي البرمجي. تابع حالة المسابقة واستعد لعرض مهاراتك في حل المسائل.</p>
+            <span className="home-kicker">{tr("مساحة المشارك")}</span>
+            <h1 id="home-title">{tr("مرحبًا،")} {student?.name || tr("طالبنا العزيز")}</h1>
+            <p>{tr("هنا تبدأ تجربتك في التحدي البرمجي. تابع حالة المسابقة واستعد لعرض مهاراتك في حل المسائل.")}</p>
           </div>
           <div className="home-welcome-mark" aria-hidden="true">IT</div>
         </section>
 
-        <section className="home-grid" aria-label="معلومات التحدي والمشارك">
+        <section className="home-grid" aria-label={tr("معلومات التحدي والمشارك")}>
           <article className="home-competition-card">
             <div className="home-card-heading">
-              <span className="home-section-label">التحدي الحالي</span>
+              <span className="home-section-label">{tr("التحدي الحالي")}</span>
               <span className={`home-status ${isActive ? "is-active" : ""}`} role="status">
                 <span className="home-status-dot" aria-hidden="true" />
                 {statusText}
               </span>
             </div>
 
-            <h2>{competition?.title || "التحدي البرمجي"}</h2>
+            <h2>{competition?.title || tr("التحدي البرمجي")}</h2>
             <p className="home-competition-description">
-              {competition?.description || "ستظهر هنا تفاصيل التحدي عند إعلانها من فريق التنظيم. يمكنك الدخول بمجرد تفعيل المسابقة."}
+              {competition?.description || tr("ستظهر هنا تفاصيل التحدي عند إعلانها من فريق التنظيم. يمكنك الدخول بمجرد تفعيل المسابقة.")}
             </p>
 
             <div className="home-metrics">
               <div>
-                <span>عدد الأسئلة</span>
+                <span>{tr("عدد الأسئلة")}</span>
                 <strong>{competition?.questions_count ?? "—"}</strong>
               </div>
               <div>
-                <span>الوقت المتبقي</span>
+                <span>{tr("الوقت المتبقي")}</span>
                 <strong dir="ltr">{competition?.remaining_seconds != null ? formatDuration(competition.remaining_seconds) : "—"}</strong>
               </div>
               <div>
-                <span>حالة الدخول</span>
-                <strong>{isActive ? "متاح" : "غير متاح"}</strong>
+                <span>{tr("حالة الدخول")}</span>
+                <strong>{isActive ? tr("متاح") : tr("غير متاح")}</strong>
               </div>
             </div>
 
-            {error && <p className="home-error" role="alert">{error}</p>}
+            {error && <p className="home-error" role="alert">{tr(error)}</p>}
 
             <div className="home-action-row">
               <button
@@ -153,41 +155,42 @@ export default function HomeScreen() {
                 disabled={!isActive || loading}
                 onClick={() => navigate("/quiz")}
               >
-                {loading ? "جارٍ التحقق..." : "الدخول إلى التحدي"}
+                {loading ? tr("جارٍ التحقق...") : tr("الدخول إلى التحدي")}
               </button>
-              <span>{isActive ? "التحدي جاهز للمشاركة" : "سيتاح الدخول عند بدء المسابقة"}</span>
+              <span>{isActive ? tr("التحدي جاهز للمشاركة") : tr("سيتاح الدخول عند بدء المسابقة")}</span>
             </div>
           </article>
 
           <aside className="home-sidebar">
             <section className="home-profile-card" aria-labelledby="home-profile-title">
-              <span className="home-section-label">بيانات المشارك</span>
-              <h2 id="home-profile-title">بطاقتك في التحدي</h2>
+              <span className="home-section-label">{tr("بيانات المشارك")}</span>
+              <h2 id="home-profile-title">{tr("بطاقتك في التحدي")}</h2>
               <dl>
                 <div>
-                  <dt>الاسم</dt>
+                  <dt>{tr("الاسم")}</dt>
                   <dd>{student?.name || "—"}</dd>
                 </div>
                 <div>
-                  <dt>رقم القيد</dt>
+                  <dt>{tr("رقم القيد")}</dt>
                   <dd dir="auto">{student?.id || student?.student_id || "—"}</dd>
                 </div>
               </dl>
+              <button className="student-profile-link" type="button" onClick={() => navigate("/profile")}>{tr("عرض الملف الشخصي وسجل المشاركات")}</button>
             </section>
 
             <section className="home-guide-card" aria-labelledby="home-guide-title">
-              <span className="home-section-label">قبل البداية</span>
-              <h2 id="home-guide-title">خطوات المشاركة</h2>
+              <span className="home-section-label">{tr("قبل البداية")}</span>
+              <h2 id="home-guide-title">{tr("خطوات المشاركة")}</h2>
               <ol>
-                <li><span>01</span><p>انتظر تفعيل التحدي من فريق التنظيم.</p></li>
-                <li><span>02</span><p>اقرأ المسائل والتعليمات داخل مساحة التحدي.</p></li>
-                <li><span>03</span><p>ارفع ملفات الحلول المصدرية قبل انتهاء الوقت.</p></li>
+                <li><span>01</span><p>{tr("انتظر تفعيل التحدي من فريق التنظيم.")}</p></li>
+                <li><span>02</span><p>{tr("اقرأ المسائل والتعليمات داخل مساحة التحدي.")}</p></li>
+                <li><span>03</span><p>{tr("ارفع ملفات الحلول المصدرية قبل انتهاء الوقت.")}</p></li>
               </ol>
             </section>
           </aside>
         </section>
 
-        <footer className="home-footer">كلية تقنية المعلومات · جامعة سرت</footer>
+        <footer className="home-footer">{tr("كلية تقنية المعلومات · جامعة سرت")}</footer>
       </div>
     </main>
   );
