@@ -2198,7 +2198,7 @@ background: linear-gradient(to right, #07033f, #0a0183);  background-attachment:
 }
 
 .home-content {
-  margin-top: 52px;
+  margin-top: 32px;
 }
 
 .home-welcome {
@@ -2206,8 +2206,8 @@ background: linear-gradient(to right, #07033f, #0a0183);  background-attachment:
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  min-height: 194px;
-  padding: 34px clamp(30px, 4.5vw, 54px);
+  min-height: 158px;
+  padding: 24px clamp(26px, 4vw, 46px);
   overflow: hidden;
   border-radius: 18px;
   background: linear-gradient(110deg, #203e60, #10263f);
@@ -2227,9 +2227,9 @@ background: linear-gradient(to right, #07033f, #0a0183);  background-attachment:
 }
 
 .home-welcome h1 {
-  margin: 12px 0 8px;
+  margin: 8px 0 6px;
   color: #fff;
-  font-size: clamp(1.8rem, 3.1vw, 2.7rem);
+  font-size: clamp(1.65rem, 2.7vw, 2.3rem);
   line-height: 1.35;
 }
 
@@ -2245,7 +2245,7 @@ background: linear-gradient(to right, #07033f, #0a0183);  background-attachment:
   flex: 0 0 auto;
   color: rgba(255, 255, 255, 0.1);
   direction: ltr;
-  font: 800 clamp(3rem, 7vw, 6rem) var(--ui-font);
+  font: 800 clamp(2.8rem, 6vw, 5rem) var(--ui-font);
   white-space: nowrap;
 }
 
@@ -2517,12 +2517,12 @@ background: linear-gradient(to right, #07033f, #0a0183);  background-attachment:
   }
 
   .home-content {
-    margin-top: 28px;
+    margin-top: 20px;
   }
 
   .home-welcome {
     min-height: 0;
-    padding: 30px 26px;
+    padding: 22px 24px;
   }
 
   .home-welcome-mark {
@@ -4495,6 +4495,22 @@ background: linear-gradient(to right, #07033f, #0a0183);  background-attachment:
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 14px;
   margin: 24px 0;
+}
+
+.admin-student-profile .student-profile-summary {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+@media (max-width: 760px) {
+  .admin-student-profile .student-profile-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-student-profile .student-profile-summary {
+    grid-template-columns: 1fr;
+  }
 }
 
 .student-profile-summary > div,

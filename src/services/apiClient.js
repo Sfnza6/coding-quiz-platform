@@ -1,22 +1,11 @@
+import { readApiResponse } from "./apiErrors";
 import { API_BASE_URL, API_ENDPOINTS } from "../config/api";
 
 function buildUrl(endpoint) {
   return `${API_BASE_URL}${endpoint}`;
 }
 
-async function parseResponse(response) {
-  const text = await response.text();
-  const data = text ? JSON.parse(text) : {};
-
-  if (!response.ok || data.status === "error") {
-    const error = new Error(data.message || "Request failed");
-    error.status = response.status;
-    error.data = data;
-    throw error;
-  }
-
-  return data;
-}
+const parseResponse = readApiResponse;
 
 function authHeaders(token, extra = {}) {
   return {

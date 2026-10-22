@@ -1,3 +1,4 @@
+import { userError } from "../services/apiErrors";
 import { tr, useLocale } from "../i18n/LocaleContext";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -79,7 +80,7 @@ export default function QuizScreen() {
           navigate("/finish", { replace: true, state: { reason, competitionId } });
           return;
         }
-        setFinalizeError("تعذر إنهاء المشاركة. تحقق من الاتصال وحاول مرة أخرى.");
+        setFinalizeError(userError(error, "تعذر إنهاء المشاركة. تحقق من الاتصال وحاول مرة أخرى."));
         finalizingRef.current = false;
         setFinalizing(false);
       }
@@ -112,8 +113,8 @@ export default function QuizScreen() {
         setRemainingSeconds(Number(competition.remaining_seconds || 0));
         try {
           await loadActivity(competition.id);
-        } catch {
-          if (isMounted) setActivityError("تعذر تحميل تقدمك ومحاولاتك. حاول تحديث الصفحة.");
+        } catch (error) {
+          if (isMounted) setActivityError(userError(error, "تعذر تحميل تقدمك ومحاولاتك. حاول تحديث الصفحة."));
         }
       } catch (error) {
         if (!isMounted) return;
@@ -122,7 +123,7 @@ export default function QuizScreen() {
           navigate("/finish", { replace: true, state: { reason: "locked" } });
           return;
         }
-        setWorkspaceError("تعذر تحميل مساحة التحدي حاليًا. حاول مرة أخرى بعد قليل.");
+        setWorkspaceError(userError(error, "تعذر تحميل مساحة التحدي حاليًا. حاول مرة أخرى بعد قليل."));
       } finally {
         if (isMounted) setLoading(false);
       }
@@ -201,8 +202,8 @@ export default function QuizScreen() {
       });
       try {
         await loadActivity(competitionId);
-      } catch {
-        setActivityError("تعذر تحديث سجل المحاولات. حاول تحديث الصفحة.");
+      } catch (error) {
+        setActivityError(userError(error, "تعذر تحديث سجل المحاولات. حاول تحديث الصفحة."));
       }
     } catch (error) {
       if (error.status === 401 || error.status === 403) {

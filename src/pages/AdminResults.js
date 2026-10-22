@@ -1,3 +1,4 @@
+import { readApiResponse, userError } from "../services/apiErrors";
 import { tr, useLocale } from "../i18n/LocaleContext";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -92,7 +93,7 @@ export default function AdminResults() {
           return;
         }
         if (!response.ok) throw new Error(tr("تعذر تحديث النتائج من الخادم."));
-        const next = await response.json();
+        const next = await readApiResponse(response);
         if (!mounted) return;
 
         if (next.status === "no_active") {
@@ -157,7 +158,7 @@ export default function AdminResults() {
         setLoading(false);
       } catch (failure) {
         if (failure.name !== "AbortError" && mounted) {
-          setError("انقطع تحديث النتائج. سنحاول الاتصال مجددًا تلقائيًا.");
+          setError(userError(failure, "انقطع تحديث النتائج. سنحاول الاتصال مجددًا تلقائيًا."));
           setLoading(false);
         }
       } finally {

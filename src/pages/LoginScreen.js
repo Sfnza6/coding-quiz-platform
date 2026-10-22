@@ -1,3 +1,4 @@
+import { userError } from "../services/apiErrors";
 import { tr, useLocale } from "../i18n/LocaleContext";
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -30,11 +31,7 @@ export default function LoginScreen() {
       await login({ studentId: studentId.trim(), password });
       navigate(location.state?.from || "/home", { replace: true });
     } catch (err) {
-      setError(
-        err.status === 401
-          ? "بيانات الدخول غير صحيحة."
-          : "تعذر الاتصال بالخادم. تأكد أن الخدمة تعمل ثم حاول مرة أخرى."
-      );
+      setError(userError(err));
     } finally {
       setIsSubmitting(false);
     }

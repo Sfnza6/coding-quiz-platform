@@ -1,3 +1,4 @@
+import { readApiResponse, userError } from "../services/apiErrors";
 import { tr, useLocale } from "../i18n/LocaleContext";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -36,10 +37,10 @@ export default function AdminQuestions() {
   const fetchQuestions = useCallback(async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/get_external_questions.php`);
-      const data = await response.json();
+      const data = await readApiResponse(response);
       setQuestions(Array.isArray(data) ? data : data.questions || []);
-    } catch {
-      setMessage("تعذر تحميل الأسئلة. تأكد أن الخادم يعمل.");
+    } catch (error) {
+      setMessage(userError(error, "تعذر تحميل الأسئلة. تأكد أن الخادم يعمل."));
     }
   }, []);
 
@@ -62,8 +63,8 @@ export default function AdminQuestions() {
 
     try {
       JSON.parse(form.test_cases || "[]");
-    } catch {
-      setMessage("صيغة حالات الاختبار غير صحيحة. تأكد من الأقواس والفواصل.");
+    } catch (error) {
+      setMessage(userError(error, "صيغة حالات الاختبار غير صحيحة. تأكد من الأقواس والفواصل."));
       return;
     }
 
@@ -73,7 +74,7 @@ export default function AdminQuestions() {
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: new URLSearchParams(form).toString(),
       });
-      const data = await response.json();
+      const data = await readApiResponse(response);
 
       if (response.ok && data.status === "success") {
         setMessage("تم حفظ السؤال بنجاح.");
@@ -82,8 +83,8 @@ export default function AdminQuestions() {
       } else {
         setMessage("لم يتم حفظ السؤال. تأكد من تعبئة الحقول المطلوبة.");
       }
-    } catch {
-      setMessage("تعذر الاتصال بالخادم أثناء حفظ السؤال.");
+    } catch (error) {
+      setMessage(userError(error, "تعذر الاتصال بالخادم أثناء حفظ السؤال."));
     }
   };
 
@@ -98,8 +99,8 @@ export default function AdminQuestions() {
       });
       setMessage("تم حذف السؤال.");
       fetchQuestions();
-    } catch {
-      setMessage("تعذر حذف السؤال. تأكد أن الخادم يعمل.");
+    } catch (error) {
+      setMessage(userError(error, "تعذر حذف السؤال. تأكد أن الخادم يعمل."));
     }
   };
 
@@ -120,13 +121,13 @@ export default function AdminQuestions() {
           mode: aiMode,
         }),
       });
-      const data = await response.json();
+      const data = await readApiResponse(response);
       if (!response.ok || data.status !== "success") {
         throw new Error(data.message || "تعذر توليد السؤال.");
       }
       setAiDraft(data.question);
     } catch (error) {
-      setAiError(error.message || "تعذر الاتصال بخدمة التوليد.");
+      setAiError(userError(error, "تعذر توليد السؤال. تحقق من إعدادات خدمة التوليد وحاول مجددًا."));
     } finally {
       setAiBusy(false);
     }

@@ -1,3 +1,4 @@
+import { readApiResponse } from "../services/apiErrors";
 import { tr, useLocale } from "../i18n/LocaleContext";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -60,12 +61,12 @@ export default function AdminPanel() {
     try {
       const response = await fetch(`${API_BASE_URL}/check_competition.php`, { cache: "no-store" });
       if (!response.ok) throw new Error("Competition status unavailable");
-      const data = await response.json();
+      const data = await readApiResponse(response);
       if (typeof data.is_started !== "boolean") throw new Error("Invalid competition status");
       if (!mountedRef.current || requestId !== statusRequestRef.current) return;
       setCompetitionStarted(data.is_started);
       setStatusError(false);
-    } catch {
+    } catch (error) {
       if (!mountedRef.current || requestId !== statusRequestRef.current) return;
       setCompetitionStarted(null);
       setStatusError(true);
@@ -101,7 +102,7 @@ export default function AdminPanel() {
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: new URLSearchParams({ ...form, duration_minutes: String(minutes) }).toString(),
       });
-      const data = await response.json();
+      const data = await readApiResponse(response);
       setStatusMessage(friendlyAdminMessage("start", data, response.ok));
       if (response.ok && data.status === "success") {
         setCompetitionStarted(true);
@@ -109,7 +110,7 @@ export default function AdminPanel() {
       } else {
         setCompetitionStarted(null);
       }
-    } catch {
+    } catch (error) {
       setStatusMessage("لم يتم تفعيل المسابقة. الخادم غير متاح حاليًا.");
       setCompetitionStarted(null);
     } finally {
@@ -127,7 +128,7 @@ export default function AdminPanel() {
 
     try {
       const response = await fetch(`${API_BASE_URL}/stop_competition.php`, { method: "POST" });
-      const data = await response.json();
+      const data = await readApiResponse(response);
       setStatusMessage(friendlyAdminMessage("stop", data, response.ok));
       if (response.ok && data.status === "success") {
         setCompetitionStarted(false);
@@ -135,7 +136,7 @@ export default function AdminPanel() {
       } else {
         setCompetitionStarted(null);
       }
-    } catch {
+    } catch (error) {
       setStatusMessage("لم يتم إيقاف المسابقة. الخادم غير متاح حاليًا.");
       setCompetitionStarted(null);
     } finally {

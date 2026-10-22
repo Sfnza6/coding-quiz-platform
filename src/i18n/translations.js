@@ -1,6 +1,13 @@
 // Arabic source copy is the key so the existing Arabic interface remains the default.
 // Student names, problem statements, and other user-authored content stay as entered.
 export const english = {
+  "عرض الملف": "View profile",
+  "ملف الطالب": "Student profile",
+  "بيانات الطالب وسجل مشاركاته في المسابقات.": "Student details and competition history.",
+  "العودة لقائمة الطلبة": "Back to students",
+  "جارٍ تحميل بيانات الطالب...": "Loading student details...",
+  "هذا الطالب لم يدخل أي مسابقة حتى الآن.": "This student has not entered a competition yet.",
+  "وقت الدخول": "Entry time",
   "الملف الشخصي": "Student profile",
   "عرض الملف الشخصي وسجل المشاركات": "View profile and participation history",
   "سجل مشاركاتك ونتائجك في التحديات البرمجية.": "Your competition history and results.",
@@ -115,6 +122,12 @@ export const english = {
   "الحلول المقبولة في هذه الجلسة": "Accepted solutions in this session",
   "الخدمة غير متاحة حاليًا. حاول مرة أخرى بعد قليل.": "The service is unavailable. Please try again shortly.",
   "الدخول إلى التحدي": "Enter competition",
+  "ابدأ التحدي": "Start challenge",
+  "استعداد": "Ready",
+  "إلغاء الاستعداد": "Cancel readiness",
+  "أنت مستعد لبداية التحدي": "Ready for the challenge",
+  "ستدخل تلقائيًا عند بدء المسابقة. الاستعداد لا يُحسب مشاركة.": "You will enter automatically when the competition starts. Readiness does not count as participation.",
+  "اضغط استعداد للدخول تلقائيًا عند بدء المسابقة.": "Select Ready to enter automatically when the competition starts.",
   "الدخول إلى المسابقة": "Enter competition",
   "الدخول إلى لوحة التحكم": "Open dashboard",
   "السؤال": "Problem",

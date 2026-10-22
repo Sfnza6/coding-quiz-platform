@@ -1,3 +1,4 @@
+import { userError } from "../services/apiErrors";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { tr, useLocale } from "../i18n/LocaleContext";
@@ -43,8 +44,8 @@ export default function StudentProfileScreen() {
     try {
       const data = await studentApi.getActivity(token, sessionId);
       setActivity((previous) => ({ ...previous, [sessionId]: data.attempts || [] }));
-    } catch {
-      setActivityError("تعذر تحميل محاولات هذه المسابقة.");
+    } catch (error) {
+      setActivityError(userError(error, "تعذر تحميل محاولات هذه المسابقة."));
     }
   };
 

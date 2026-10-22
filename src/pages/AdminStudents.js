@@ -1,3 +1,4 @@
+import { readApiResponse, userError } from "../services/apiErrors";
 import { tr, useLocale } from "../i18n/LocaleContext";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -37,7 +38,7 @@ export default function AdminStudents() {
 
     try {
       const response = await fetch(`${API_BASE_URL}/get_students.php`);
-      const data = await response.json();
+      const data = await readApiResponse(response);
 
       if (response.ok && data.status === "success") {
         setStudents(data.students || []);
@@ -45,8 +46,8 @@ export default function AdminStudents() {
       } else {
         setMessage("تعذر تحميل بيانات الطلبة. تأكد من جاهزية قاعدة البيانات.");
       }
-    } catch {
-      setMessage("تعذر تحميل بيانات الطلبة حاليًا. حاول مرة أخرى بعد قليل.");
+    } catch (error) {
+      setMessage(userError(error, "تعذر تحميل بيانات الطلبة حاليًا. حاول مرة أخرى بعد قليل."));
     } finally {
       setLoading(false);
     }
@@ -76,7 +77,7 @@ export default function AdminStudents() {
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: new URLSearchParams({ student_id: student.student_id }).toString(),
       });
-      const data = await response.json();
+      const data = await readApiResponse(response);
 
       if (response.ok && data.status === "success") {
         setStudents((current) => current.filter((item) => item.student_id !== student.student_id));
@@ -87,8 +88,8 @@ export default function AdminStudents() {
       } else {
         setMessage("تعذر حذف الطالب. تأكد من اتصال الخادم وقاعدة البيانات.");
       }
-    } catch {
-      setMessage("تعذر الاتصال بالخادم أثناء حذف الطالب.");
+    } catch (error) {
+      setMessage(userError(error, "تعذر الاتصال بالخادم أثناء حذف الطالب."));
     } finally {
       setDeletingStudentId("");
     }
@@ -197,6 +198,13 @@ export default function AdminStudents() {
                     <td>{student.attempts_count || 0}</td>
                     <td>{formatDate(student.last_activity)}</td>
                     <td>
+                      <button
+                        type="button"
+                        className="secondary-action compact-action"
+                        onClick={() => navigate(`/admin/students/${encodeURIComponent(student.student_id)}`)}
+                      >
+                        {tr("عرض الملف")}
+                      </button>{" "}
                       <button
                         className="table-danger-action"
                         onClick={() => deleteStudent(student)}

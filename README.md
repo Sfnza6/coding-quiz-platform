@@ -12,6 +12,8 @@ The frontend uses `http://localhost/coding_quiz` by default. To change it, set `
 
 ## Build
 
+For the verified local Docker/Judge0 setup, file locations, and troubleshooting results, see [LOCAL_SETUP_AR.md](LOCAL_SETUP_AR.md). Use `powershell -ExecutionPolicy Bypass -File scripts/judge0.ps1 start` to start the configured local instance.
+
 Run `npm run build` to create the production bundle. The generated `build/` folder and `node_modules/` are excluded from Git.
 
 The API is kept in the separate `coding-quiz-backend` repository.

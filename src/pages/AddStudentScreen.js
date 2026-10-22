@@ -1,3 +1,4 @@
+import { readApiResponse, userError } from "../services/apiErrors";
 import { tr, useLocale } from "../i18n/LocaleContext";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -39,7 +40,7 @@ export default function AddStudentScreen() {
           student_name: studentName.trim(),
         }).toString(),
       });
-      const data = await response.json();
+      const data = await readApiResponse(response);
 
       if (response.ok && data.status === "success") {
         setMessage("تمت إضافة الطالب بنجاح. احفظ كلمة المرور وسلمها للطالب.");
@@ -51,8 +52,8 @@ export default function AddStudentScreen() {
       } else {
         setErrorMessage("لم تتم إضافة الطالب. تأكد من إدخال الاسم ورقم القيد.");
       }
-    } catch {
-      setErrorMessage("الخدمة غير متاحة حاليًا. حاول مرة أخرى بعد قليل.");
+    } catch (error) {
+      setErrorMessage(userError(error, "الخدمة غير متاحة حاليًا. حاول مرة أخرى بعد قليل."));
     } finally {
       setIsSubmitting(false);
     }

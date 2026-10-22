@@ -1,3 +1,4 @@
+import { readApiResponse, userError } from "../services/apiErrors";
 import { tr, useLocale } from "../i18n/LocaleContext";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -30,7 +31,7 @@ export default function AdminLoginScreen() {
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: new URLSearchParams({ admin_id: adminId.trim() }).toString(),
       });
-      const data = await response.json();
+      const data = await readApiResponse(response);
 
       if (response.ok && data.status === "success") {
         localStorage.setItem("admin-id", adminId.trim());
@@ -40,8 +41,8 @@ export default function AdminLoginScreen() {
       } else {
         setError("بيانات المسؤول غير صحيحة.");
       }
-    } catch {
-      setError("الخدمة غير متاحة حاليًا. حاول مرة أخرى بعد قليل.");
+    } catch (error) {
+      setError(userError(error, "الخدمة غير متاحة حاليًا. حاول مرة أخرى بعد قليل."));
     } finally {
       setIsSubmitting(false);
     }

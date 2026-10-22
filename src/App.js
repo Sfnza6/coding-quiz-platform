@@ -7,6 +7,7 @@ import AdminPanel from "./pages/AdminPanel";
 import AdminQuestions from "./pages/AdminQuestions";
 import AddStudentScreen from "./pages/AddStudentScreen";
 import AdminStudents from "./pages/AdminStudents";
+import AdminStudentProfile from "./pages/AdminStudentProfile";
 import FinishScreen from "./pages/FinishScreen";
 import StudentProfileScreen from "./pages/StudentProfileScreen";
 import AdminResults from "./pages/AdminResults";
@@ -40,6 +41,7 @@ function App() {
             <Route element={<AdminLayout />}>
               <Route path="/admin" element={<AdminPanel />} />
               <Route path="/admin/students" element={<AdminStudents />} />
+              <Route path="/admin/students/:studentId" element={<AdminStudentProfile />} />
               <Route path="/admin-questions" element={<AdminQuestions />} />
               <Route path="/add-student" element={<AddStudentScreen />} />
               <Route path="/results" element={<AdminResults />} />

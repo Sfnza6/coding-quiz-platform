@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import InstitutionBrand from "../components/InstitutionBrand";
 import { studentApi } from "../services/apiClient";
+import { API_BASE_URL } from "../config/api";
 import "../App.css";
 
 function formatDuration(seconds) {
@@ -13,6 +14,19 @@ function formatDuration(seconds) {
   return `${minutes}:${String(remainder).padStart(2, "0")}`;
 }
 
+function readinessKey(student) {
+  return `student-ready:${student?.student_id || student?.id || ""}`;
+}
+
+function readReadiness(student) {
+  try {
+    const saved = Number(sessionStorage.getItem(readinessKey(student)));
+    return saved > 0 && Date.now() - saved < 2 * 60 * 60 * 1000;
+  } catch {
+    return false;
+  }
+}
+
 export default function HomeScreen() {
   const { direction } = useLocale();
   const [competition, setCompetition] = useState(null);
@@ -20,6 +34,11 @@ export default function HomeScreen() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const { student, token, logout, setActiveCompetitionId, clearFinishedCompetition } = useAuth();
+  const [isReady, setIsReady] = useState(() => readReadiness(student));
+
+  useEffect(() => {
+    setIsReady(readReadiness(student));
+  }, [student]);
 
   useEffect(() => {
     let isMounted = true;
@@ -53,11 +72,18 @@ export default function HomeScreen() {
     };
 
     loadCompetitionStatus();
+    // The event only signals a change; the authenticated request above supplies the data.
+    const events = typeof EventSource !== "undefined"
+      ? new EventSource(`${API_BASE_URL}/competition_events.php`)
+      : null;
+    events?.addEventListener("changed", loadCompetitionStatus);
+    events?.addEventListener("ready", loadCompetitionStatus);
     const intervalId = setInterval(loadCompetitionStatus, 4000);
 
     return () => {
       isMounted = false;
       clearInterval(intervalId);
+      events?.close();
     };
   }, [clearFinishedCompetition, setActiveCompetitionId, token]);
 
@@ -83,19 +109,38 @@ export default function HomeScreen() {
     }
   }, [competition?.id, competition?.student_status, navigate]);
 
+  const isActive = Boolean(competition?.is_active && Number(competition?.remaining_seconds || 0) > 0);
+
+  useEffect(() => {
+    if (!isReady || !isActive || competition?.student_status === "finished") return;
+    sessionStorage.removeItem(readinessKey(student));
+    setIsReady(false);
+    navigate("/quiz", { replace: true });
+  }, [isReady, isActive, competition?.student_status, navigate, student]);
+
+  const toggleReady = () => {
+    if (isReady) {
+      sessionStorage.removeItem(readinessKey(student));
+      setIsReady(false);
+    } else {
+      sessionStorage.setItem(readinessKey(student), String(Date.now()));
+      setIsReady(true);
+    }
+  };
+
   const handleLogout = () => {
+    sessionStorage.removeItem(readinessKey(student));
     logout();
     navigate("/", { replace: true });
   };
 
-  const isActive = Boolean(competition?.is_active && Number(competition?.remaining_seconds || 0) > 0);
   const statusText = loading
     ? tr("جارٍ التحقق من حالة التحدي")
     : isActive
       ? tr("التحدي متاح الآن")
       : competition?.student_status === "finished"
         ? tr("اكتملت مشاركتك")
-        : tr("بانتظار بدء التحدي");
+        : isReady ? tr("أنت مستعد لبداية التحدي") : tr("بانتظار بدء التحدي");
 
   return (
     <main className="student-shell dashboard-shell institution-home" dir={direction}>
@@ -152,12 +197,12 @@ export default function HomeScreen() {
               <button
                 className="home-enter-button"
                 type="button"
-                disabled={!isActive || loading}
-                onClick={() => navigate("/quiz")}
+                disabled={loading || competition?.student_status === "finished"}
+                onClick={isActive ? () => navigate("/quiz") : toggleReady}
               >
-                {loading ? tr("جارٍ التحقق...") : tr("الدخول إلى التحدي")}
+                {loading ? tr("جارٍ التحقق...") : isActive ? tr("ابدأ التحدي") : isReady ? tr("إلغاء الاستعداد") : tr("استعداد")}
               </button>
-              <span>{isActive ? tr("التحدي جاهز للمشاركة") : tr("سيتاح الدخول عند بدء المسابقة")}</span>
+              <span>{isActive ? tr("التحدي جاهز للمشاركة") : isReady ? tr("ستدخل تلقائيًا عند بدء المسابقة. الاستعداد لا يُحسب مشاركة.") : tr("اضغط استعداد للدخول تلقائيًا عند بدء المسابقة.")}</span>
             </div>
           </article>
 
